@@ -21,6 +21,7 @@
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
                 <a class="nav-link" href="/registerForm.html">회원가입 <span class="sr-only">(current)</span></a>
+
             </li>
             <li>
                 <a class="nav-link" href="/list">사용자 목록 <span class="sr-only">(current)</span></a>
@@ -28,12 +29,46 @@
 
 
 
-
         </ul>
 
     </div>
 </nav>
-<h1>Hello, world!!!</h1>
+
+<br>
+
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+            <div class="col-9">
+                <h1>회원목록</h1>
+                <br>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">사용자 아이디</th>
+                        <th scope="col">이름</th>
+                        <th scope="col">이메일</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {{#users}} <!-- 머스타치 포문쓰는법 -->
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>{{userId}}</td> <!-- userDto의 속성들-->
+                        <td>{{name}}</td>
+                        <td>{{email}}</td>
+                    </tr>
+
+                    {{/users}}
+                    </tbody>
+                </table>
+            </div>
+        <div class="col"></div>
+    </div>
+</div>
+
 
 
 <!-- Optional JavaScript -->
