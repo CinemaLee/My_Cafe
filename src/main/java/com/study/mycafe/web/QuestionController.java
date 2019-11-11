@@ -1,6 +1,7 @@
 package com.study.mycafe.web;
 
 import com.study.mycafe.domain.Question;
+import com.study.mycafe.domain.Result;
 import com.study.mycafe.domain.User;
 import com.study.mycafe.exception.QuestionNotFoundException;
 import com.study.mycafe.repository.QuestionRepository;
@@ -52,22 +53,20 @@ public class QuestionController {
     }
 
 
+
     @GetMapping("/{id}/updateForm")
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-
-
-        try{
-            Question question = questionRepository.getOne(id);
-            hasPermission(session,question);
-            model.addAttribute("question", question);
-            return "qna/updateForm";
-        }catch (IllegalStateException e){
-            model.addAttribute("errorMessage", e.getMessage());
+        Question question = questionRepository.getOne(id);
+        Result result = validPermission(session, question);
+        if(!result.isValid()) {
+            model.addAttribute("errorMessage", result.getErrorMessage());
             return "user/login";
         }
-
+        model.addAttribute("question", question);
+        return "qna/updateForm";
 
     }
+
 
 
     @PostMapping("/{id}/update")
@@ -82,30 +81,46 @@ public class QuestionController {
 
     @PostMapping("/{id}")
     public String delete(@PathVariable Long id, Model model, HttpSession session) {
-        try{
-            Question question = questionRepository.getOne(id);
-            hasPermission(session,question);
-            questionRepository.deleteById(id);
-            return "redirect:/";
-        }catch (IllegalStateException e){
-            model.addAttribute("errorMessage", e.getMessage());
+        Question question = questionRepository.getOne(id);
+        Result result = validPermission(session, question);
+
+        if(!result.isValid()){
+            model.addAttribute("errorMessage", result.getErrorMessage());
             return "user/login";
         }
-
-
+        questionRepository.deleteById(id);
+        return "redirect:/";
 
     }
 
-    private void hasPermission(HttpSession session, Question question) {
+
+    private Result validPermission(HttpSession session, Question question) {
 
         if(!SessionUtils.isLoginUser(session)) {
-            throw new IllegalStateException("로그인이 필요합니다.");
+            return Result.fail("로그인이 필요합니다.");
         }
         User loginUser = SessionUtils.getUserFromSession(session);
         if(!question.isSameUser(loginUser)) {
-            throw new IllegalStateException("자신이 쓴 글만 수정, 삭제가 가능합니다.");
+            return Result.fail("자신이 쓴 글만 수정, 삭제가 가능합니다.");
         }
 
+        return Result.ok();
+
     }
+
+
+//    private void hasPermission(HttpSession session, Question question) {
+//
+//        if(!SessionUtils.isLoginUser(session)) {
+//            throw new IllegalStateException("로그인이 필요합니다.");
+//        }
+//        User loginUser = SessionUtils.getUserFromSession(session);
+//        if(!question.isSameUser(loginUser)) {
+//            throw new IllegalStateException("자신이 쓴 글만 수정, 삭제가 가능합니다.");
+//        }
+//
+
+//    }
+
 
 }
