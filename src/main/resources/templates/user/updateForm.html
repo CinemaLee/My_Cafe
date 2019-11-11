@@ -4,12 +4,13 @@
 <div class="container" id="main">
    <div class="col-md-6 col-md-offset-3">
       <div class="panel panel-default content-main">
-          <form name="question" method="post" action="/user/register">
-
+          <form name="question" method="post" action="/user/{{id}}/update">
+              <input type="hidden" name="_method" value="put"/> <!-- html표준은 get과post지만 꼼수로 메서드 방식을 바꿀 수 있음.-->
               {{#users}}
+<!--              <input type="hidden" name="id" value="{{id}}"/> &lt;!&ndash; 유저에게는 안보이지만 id를 담아서 데이터를 넘김&ndash;&gt;-->
               <div class="form-group">
                   <label for="userId">사용자 아이디</label>
-                  <input class="form-control" id="userId" name="userId" placeholder="User ID" value="{{userId}}"> <!--value로 값을 넣어둠.-->
+                  <input class="form-control" id="userId" name="userId" placeholder="User ID" value="{{userId}}"> <!--value로 값을 넣어둠. name에 담아서 데이터를 넘김-->
               </div>
               <div class="form-group">
                   <label for="password">비밀번호</label>
