@@ -6,6 +6,9 @@
    <div class="col-md-6 col-md-offset-3">
       <div class="panel panel-default content-main">
           <h3>로그인</h3>
+          {{#errorMessage}}
+          <div class="alert alert-danger" role="alert">{{this}}</div>
+          {{/errorMessage}}
           <form name="question" method="post" action="/user/login">
 
               <div class="form-group">

@@ -54,20 +54,18 @@ public class QuestionController {
 
     @GetMapping("/{id}/updateForm")
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-        if(!SessionUtils.isLoginUser(session)){
-            return "redirect:/user/loginForm";
+
+
+        try{
+            Question question = questionRepository.getOne(id);
+            hasPermission(session,question);
+            model.addAttribute("question", question);
+            return "qna/updateForm";
+        }catch (IllegalStateException e){
+            model.addAttribute("errorMessage", e.getMessage());
+            return "user/login";
         }
-        User loginUser = SessionUtils.getUserFromSession(session);
-        System.out.println("sessionUser: >>" +loginUser);
-        Question question = questionRepository.findById(id).orElseThrow(QuestionNotFoundException::new);
 
-        if(!question.isSameUser(loginUser)) { // 내가 id던져줄께 너가 판단해라. // id가 같지 않으면~ (주소로 questions/2/updateForm 요런식으로 넘어오는 상황)
-            throw new IllegalStateException("자신의 작성글만 수정할 수 있습니다.");
-        }
-
-        model.addAttribute("question",question);
-
-        return "qna/updateForm";
 
     }
 
@@ -83,18 +81,31 @@ public class QuestionController {
 
 
     @PostMapping("/{id}")
-    public String delete(@PathVariable Long id, HttpSession session) {
-        if(!SessionUtils.isLoginUser(session)){
-            return "redirect:/user/loginForm";
+    public String delete(@PathVariable Long id, Model model, HttpSession session) {
+        try{
+            Question question = questionRepository.getOne(id);
+            hasPermission(session,question);
+            questionRepository.deleteById(id);
+            return "redirect:/";
+        }catch (IllegalStateException e){
+            model.addAttribute("errorMessage", e.getMessage());
+            return "user/login";
         }
-        User sessionUser = SessionUtils.getUserFromSession(session);
-        Question question = questionRepository.findById(id).orElseThrow(QuestionNotFoundException::new);
-        if(!question.isSameUser(sessionUser)){ // 내가 id던져줄께 너가 판단해라. // id가 같지 않으면~ (주소로 questions/2/updateForm 요런식으로 넘어오는 상황)
-            throw new IllegalStateException("자신의 작성글만 삭제할 수 있습니다.");
-        }
-        questionRepository.deleteById(id);
 
-        return "redirect:/";
+
+
+    }
+
+    private void hasPermission(HttpSession session, Question question) {
+
+        if(!SessionUtils.isLoginUser(session)) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+        User loginUser = SessionUtils.getUserFromSession(session);
+        if(!question.isSameUser(loginUser)) {
+            throw new IllegalStateException("자신이 쓴 글만 수정, 삭제가 가능합니다.");
+        }
+
     }
 
 }
