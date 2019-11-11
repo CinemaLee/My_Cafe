@@ -58,8 +58,10 @@ public class QuestionController {
             return "redirect:/user/loginForm";
         }
         User loginUser = SessionUtils.getUserFromSession(session);
+        System.out.println("sessionUser: >>" +loginUser);
         Question question = questionRepository.findById(id).orElseThrow(QuestionNotFoundException::new);
-        if(!question.isSameUser(loginUser)){ // 내가 id던져줄께 너가 판단해라. // id가 같지 않으면~ (주소로 questions/2/updateForm 요런식으로 넘어오는 상황)
+
+        if(!question.isSameUser(loginUser)) { // 내가 id던져줄께 너가 판단해라. // id가 같지 않으면~ (주소로 questions/2/updateForm 요런식으로 넘어오는 상황)
             throw new IllegalStateException("자신의 작성글만 수정할 수 있습니다.");
         }
 

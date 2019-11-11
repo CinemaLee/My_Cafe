@@ -24,10 +24,4 @@ public class SessionUtils {
         return (User)session.getAttribute(USER_SESSION_KEY); // 로그인 되있으면
     }
 
-    static Question getQuestionFromSession(HttpSession session) {
-        if(!isLoginUser(session)){ // 세션이 없다면 비로그인 이라면.
-            return null;
-        }
-        return (Question)session.getAttribute(USER_SESSION_KEY); // 로그인 되있으면
-    }
 }
