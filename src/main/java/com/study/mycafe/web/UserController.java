@@ -4,6 +4,7 @@ import com.study.mycafe.dto.UserDto;
 import com.study.mycafe.repository.UserRepository;
 import com.study.mycafe.domain.User;
 import com.study.mycafe.exception.PersonNotFoundException;
+import com.study.mycafe.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService;
+
 
     @GetMapping("/loginForm")
     public String loginForm() {
@@ -29,26 +33,18 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public String login(String userId, String password, HttpSession session, Model model) {
+    public String login(String userId, String password, HttpSession session) {
 
         User user = userRepository.findByUserId(userId);
 
-        if(user == null) {
+        if(!userService.loginLogic(user, password)) {
             log.info("Login Fail.");
-            model.addAttribute("message","존재하지 않는 아이디입니다.");
             return "redirect:/user/loginForm";
         }
 
-        if(!user.getPassword().equals(password)){
-            log.info("Login Fail.");
-            model.addAttribute("message","비밀번호가 틀렸습니다.");
-            return "redirect:/user/loginForm";
-        }
-        log.info("Login Success!!");
-        log.info("LoginUser : >> "+user);
-        session.setAttribute("loginUser",user); // 세션에 저장.
+        log.info("Login Success!");
 
-
+        session.setAttribute(SessionUtils.USER_SESSION_KEY,user); // 세션에 저장.
 
         return "redirect:/";
     }
@@ -56,7 +52,7 @@ public class UserController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.removeAttribute("loginUser");
+        session.removeAttribute(SessionUtils.USER_SESSION_KEY);
         return "redirect:/";
     }
 
@@ -87,23 +83,27 @@ public class UserController {
 
 
     @GetMapping("/{id}/updateForm")
-    public String updateForm(@PathVariable Long id, Model model) {
+    public String updateForm(@PathVariable Long id, Model model,HttpSession session) {
 
-        User user = userRepository.findById(id).orElseThrow(PersonNotFoundException::new);
+        if(!SessionUtils.isLoginUser(session)) { // 로그인 되있는 사용자만 updateForm 띄워줄거야.
+            return "redirect:/user/loginForm";
+        }
 
-        model.addAttribute("users",user);
+        User sessionUser = SessionUtils.getUserFromSession(session);  // 세션 유저를 가져오고 이 아이가 수정하려는 놈의 id와 같은지 판단
+        if(!sessionUser.matchId(id)){ // 내가 id던져줄께 너가 판단해라. // id가 같지 않으면~ (주소로 user/2/updateForm 요런식으로 넘어오는 상황)
+            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+        }
+
+        model.addAttribute("users",sessionUser); // form에 세션유저 데이터를 넘겨주자.
         return "user/updateForm";
     }
 
-    @PutMapping("/{id}/update")
-    public String update(@PathVariable Long id, UserDto userDto){
 
-        User userAtDb = userRepository.findById(id).orElseThrow(PersonNotFoundException::new);
-        userAtDb.setUserId(userDto.getUserId());
-        userAtDb.setName(userDto.getName());
-        userAtDb.setEmail(userDto.getEmail());
-        userAtDb.setPassword(userDto.getPassword());
-        userRepository.save(userAtDb);
+    @PostMapping("/{id}/update")
+    public String update(@PathVariable Long id, UserDto userDto){ // 수정된 form데이터가 UserDto에 담김. @ModelAttribute("폼이름") UserForm form .. 요런식으로 받기도 가능.
+
+
+        userService.updateUser(id, userDto.getUserId(), userDto.getName(), userDto.getEmail(), userDto.getPassword());
 
         return "redirect:/user/list";
     }
