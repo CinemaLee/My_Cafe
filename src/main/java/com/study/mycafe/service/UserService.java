@@ -29,7 +29,7 @@ public class UserService {
     }
 
 
-    public void updateUser(Long id, String userId,String name, String email, String password) {
+    public void updateUser(Long id, String userId, String name, String email, String password) {
         User userAtDb = userRepository.findById(id).orElseThrow(PersonNotFoundException::new); // 영속상태. 값수정하고 따로 persist필요없다. 트랜잭션이 끝나면서 알아서 업데이트 쿼리가 나감.
         userAtDb.setUserId(userId);
         userAtDb.setName(name);

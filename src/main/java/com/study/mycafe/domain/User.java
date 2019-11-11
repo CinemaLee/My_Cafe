@@ -1,18 +1,18 @@
 package com.study.mycafe.domain;
 
 import lombok.Data;
+import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
 public class User {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true) // null이 될 수 없다. 똑같을 수 없다.
@@ -21,6 +21,11 @@ public class User {
     private String password;
     private String name;
     private String email;
+
+
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<Question> questions = new ArrayList<>();
 
 
 
