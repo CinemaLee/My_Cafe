@@ -1,6 +1,8 @@
 package com.study.mycafe.web;
 
 import com.study.mycafe.dto.UserDto;
+import com.study.mycafe.exception.NotMatchIdException;
+import com.study.mycafe.exception.NotMatchPasswordException;
 import com.study.mycafe.repository.UserRepository;
 import com.study.mycafe.domain.User;
 import com.study.mycafe.exception.PersonNotFoundException;
@@ -33,20 +35,23 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public String login(String userId, String password, HttpSession session) {
+    public String login(String userId, String password, HttpSession session, Model model) {
 
-        User user = userRepository.findByUserId(userId);
+        try{
+            User user = userRepository.findByUserId(userId);
+            userService.loginLogic(user, password); // 아이디가 없으면 에러 / 비밀번호가 틀리면 에러
+            session.setAttribute(SessionUtils.USER_SESSION_KEY, user); //loginUser. << SESSION_KEY
+            log.info("Login Success!");
+            return "redirect:/";
 
-        if(!userService.loginLogic(user, password)) {
+        }catch (IllegalStateException  | NotMatchPasswordException e) { // 존재하지 않는 아이디 or 비밀번호가 다른경우.
+            model.addAttribute("errorMessage", e.getMessage());
             log.info("Login Fail.");
-            return "redirect:/user/loginForm";
+            return "user/login"; // model을 넘기려면 redirect하면 안되고 템플릿을 리턴해줘야 넘어감.
+
         }
 
-        log.info("Login Success!");
 
-        session.setAttribute(SessionUtils.USER_SESSION_KEY,user); // 세션에 저장.
-
-        return "redirect:/";
     }
 
 
@@ -85,17 +90,26 @@ public class UserController {
     @GetMapping("/{id}/updateForm")
     public String updateForm(@PathVariable Long id, Model model,HttpSession session) {
 
-        if(!SessionUtils.isLoginUser(session)) { // 로그인 되있는 사용자만 updateForm 띄워줄거야.
-            return "redirect:/user/loginForm";
+        try{
+
+            SessionUtils.isLoginUser(session);
+            User sessionUser = SessionUtils.getUserFromSession(session);  // 세션 유저를 가져오고
+            sessionUser.matchId(id); // 이 아이가 수정하려는 놈의 id와 같은지 판단
+            model.addAttribute("users",sessionUser); // form에 세션유저 데이터를 넘겨주자.
+            return "user/updateForm";
+
+        }catch (IllegalStateException e) { // 로그인을 해야합니다.
+            model.addAttribute("errorMessage", e.getMessage());
+            return "user/login";
+
+        }catch (PersonNotFoundException | NotMatchIdException e) { // 해당 사용자가 존재하지 않는 경우 / 해당 사용자가 아닌경우.
+            List<User> all = userRepository.findAll();
+            model.addAttribute("users",all); // 에러메세지가 있을때 리스트를 다시보여주기 위해 보내주는 것.
+            model.addAttribute("errorMessage", e.getMessage());
+            return "user/list";
+
         }
 
-        User sessionUser = SessionUtils.getUserFromSession(session);  // 세션 유저를 가져오고 이 아이가 수정하려는 놈의 id와 같은지 판단
-        if(!sessionUser.matchId(id)){ // 내가 id던져줄께 너가 판단해라. // id가 같지 않으면~ (주소로 user/2/updateForm 요런식으로 넘어오는 상황)
-            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
-        }
-
-        model.addAttribute("users",sessionUser); // form에 세션유저 데이터를 넘겨주자.
-        return "user/updateForm";
     }
 
 

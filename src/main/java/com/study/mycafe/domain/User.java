@@ -1,6 +1,8 @@
 package com.study.mycafe.domain;
 
-import lombok.Data;
+import com.study.mycafe.exception.NotMatchIdException;
+import com.study.mycafe.exception.NotMatchPasswordException;
+import com.study.mycafe.exception.PersonNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -38,18 +40,22 @@ public class User {
 
 
 
-    public boolean matchPassword(String newPassword) {
+    public void matchPassword(String newPassword) {
         if(newPassword == null) {
-            return false;
+            throw new NotMatchPasswordException();
         }
-        return newPassword.equals(password);
+        if(!newPassword.equals(password)){
+            throw new NotMatchPasswordException();
+        }
     }
 
-    public boolean matchId(Long newId) {
+    public void matchId(Long newId) {
         if(newId == null) {
-            return false;
+            throw new PersonNotFoundException();
         }
-        return newId.equals(id);
+        if(!newId.equals(id)) {
+            throw new NotMatchIdException();
+        }
     }
 
     // Lombok의 @Data안에 있는 equals()로 하니 에러가 났다. 눈으로 보기에는 다 같은데 뭐가 문젠지.. 아마 sessionUser는 눈으로 보기와는 다르게 조금 다르게 생긴것같음.

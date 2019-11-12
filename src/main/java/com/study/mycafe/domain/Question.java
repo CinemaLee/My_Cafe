@@ -1,5 +1,6 @@
 package com.study.mycafe.domain;
 
+import com.study.mycafe.exception.NotMatchIdException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -64,9 +65,9 @@ public class Question {
     }
 
 
-    public boolean isSameUser(User loginUser) {
-        System.out.println("user: "+user);
-        System.out.println(this.user.equals(loginUser)); // 선생님 왜 false가 나오죠
-        return this.user.equals(loginUser); // 내용이 같으면 참이도록 내가 재정의 한것. @Data안에 포함.
+    public void isSameUser(User loginUser) {
+        if(!this.user.equals(loginUser)) {
+            throw new NotMatchIdException();
+        }
     }
 }

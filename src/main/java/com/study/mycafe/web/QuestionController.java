@@ -1,9 +1,8 @@
 package com.study.mycafe.web;
 
 import com.study.mycafe.domain.Question;
-import com.study.mycafe.domain.Result;
 import com.study.mycafe.domain.User;
-import com.study.mycafe.exception.QuestionNotFoundException;
+import com.study.mycafe.exception.NotMatchIdException;
 import com.study.mycafe.repository.QuestionRepository;
 import com.study.mycafe.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,14 +55,25 @@ public class QuestionController {
 
     @GetMapping("/{id}/updateForm")
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-        Question question = questionRepository.getOne(id);
-        Result result = validPermission(session, question);
-        if(!result.isValid()) {
-            model.addAttribute("errorMessage", result.getErrorMessage());
+        try {
+            SessionUtils.isLoginUser(session); // 비로그인이면 에러
+            User loginUser = SessionUtils.getUserFromSession(session); // 로그인 세션 가져옴
+            Question question = questionRepository.getOne(id); //  질문을 가져온다. 질문이 없을 수는 없다.
+            question.isSameUser(loginUser); // 질문한 사람과 로그인한 사람이 다르면 에러
+            model.addAttribute("question",question);
+            return "qna/updateForm";
+
+        }catch (IllegalStateException e){ // 로그인해야합니다.
+            model.addAttribute("errorMessage", e.getMessage());
             return "user/login";
+
+        }catch (NotMatchIdException e) { // 해당 유저가 아닙니다.
+            Question question = questionRepository.getOne(id); // 에러메시지를 리스트에 뿌리기 위해 다시 값을 가져옴
+            model.addAttribute("question",question);
+            model.addAttribute("errorMessage",e.getMessage());
+            return "qna/qnaShow";
         }
-        model.addAttribute("question", question);
-        return "qna/updateForm";
+
 
     }
 
@@ -81,46 +91,33 @@ public class QuestionController {
 
     @PostMapping("/{id}")
     public String delete(@PathVariable Long id, Model model, HttpSession session) {
-        Question question = questionRepository.getOne(id);
-        Result result = validPermission(session, question);
+        try {
+            SessionUtils.isLoginUser(session); // 비로그인이면 에러
+            User loginUser = SessionUtils.getUserFromSession(session); // 로그인 세션 가져옴
+            Question question = questionRepository.getOne(id); //  질문을 가져온다. 질문이 없을 수는 없다.
+            question.isSameUser(loginUser); // 질문한 사람과 로그인한 사람이 다르면 에러
+            questionRepository.deleteById(id);
+            return "redirect:/";
 
-        if(!result.isValid()){
-            model.addAttribute("errorMessage", result.getErrorMessage());
+        }catch (IllegalStateException e){ // 로그인해야합니다.
+            model.addAttribute("errorMessage", e.getMessage());
             return "user/login";
+
+        }catch (NotMatchIdException e) { // 해당 유저가 아닙니다.
+            Question question = questionRepository.getOne(id); // 에러메시지를 리스트에 뿌리기 위해 다시 값을 가져옴
+            model.addAttribute("question",question);
+            model.addAttribute("errorMessage",e.getMessage());
+            return "qna/qnaShow";
         }
-        questionRepository.deleteById(id);
-        return "redirect:/";
+
+
 
     }
 
 
-    private Result validPermission(HttpSession session, Question question) {
-
-        if(!SessionUtils.isLoginUser(session)) {
-            return Result.fail("로그인이 필요합니다.");
-        }
-        User loginUser = SessionUtils.getUserFromSession(session);
-        if(!question.isSameUser(loginUser)) {
-            return Result.fail("자신이 쓴 글만 수정, 삭제가 가능합니다.");
-        }
-
-        return Result.ok();
-
-    }
 
 
-//    private void hasPermission(HttpSession session, Question question) {
-//
-//        if(!SessionUtils.isLoginUser(session)) {
-//            throw new IllegalStateException("로그인이 필요합니다.");
-//        }
-//        User loginUser = SessionUtils.getUserFromSession(session);
-//        if(!question.isSameUser(loginUser)) {
-//            throw new IllegalStateException("자신이 쓴 글만 수정, 삭제가 가능합니다.");
-//        }
-//
 
-//    }
 
 
 }

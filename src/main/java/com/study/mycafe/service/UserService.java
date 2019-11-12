@@ -1,14 +1,11 @@
 package com.study.mycafe.service;
 
 import com.study.mycafe.domain.User;
-import com.study.mycafe.dto.UserDto;
 import com.study.mycafe.exception.PersonNotFoundException;
 import com.study.mycafe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.HttpSession;
 
 @Service
 @Transactional
@@ -18,13 +15,13 @@ public class UserService {
     private UserRepository userRepository;
 
 
-    public boolean loginLogic(User user, String password) {
+    public void loginLogic(User user, String password) {
 
         if(user == null) {
-            return false;
+            throw new IllegalStateException("존재하지 않는 아이디 입니다.");
         }
 
-        return user.matchPassword(password);
+        user.matchPassword(password);
 
     }
 

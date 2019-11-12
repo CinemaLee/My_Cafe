@@ -1,6 +1,5 @@
 package com.study.mycafe.web;
 
-import com.study.mycafe.domain.Question;
 import com.study.mycafe.domain.User;
 
 import javax.servlet.http.HttpSession;
@@ -12,8 +11,10 @@ public class SessionUtils {
 
     static boolean isLoginUser(HttpSession session) {
         Object sessionUser = session.getAttribute(USER_SESSION_KEY);
-
-        return sessionUser != null; //null이 아니면(세션이 있으면) 트루를 리턴.
+        if(sessionUser == null) {
+            throw new IllegalStateException("로그인을 해야합니다.");
+        }
+        return true; //null이 아니면(세션이 있으면) 트루를 리턴.
     }
 
 
