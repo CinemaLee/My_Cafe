@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Getter // Json형식으로 리턴할때 get이 달려있는 놈들만 출력이 된다. 
+@Getter // Json형식으로 리턴할때 get이 달려있는 놈들만 출력이 된다.
 @Setter
 @ToString
 public class User extends SuperEntity{

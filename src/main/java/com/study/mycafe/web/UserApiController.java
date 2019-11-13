@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserApiController {
@@ -16,7 +18,12 @@ public class UserApiController {
     private UserRepository userRepository;
 
     @GetMapping("/{id}")
-    public User show(@PathVariable Long id) {
-        return userRepository.findById(id).orElseGet(null);
+    public Header show(@PathVariable Long id) {
+        Optional<User> user = userRepository.findById(id);
+
+        return user.map(u -> Header.Ok(u))
+                .orElseGet(()->Header.Error("사용자를 찾을 수 없습니다."));
+
+
     }
 }
