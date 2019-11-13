@@ -28,6 +28,18 @@ public class UserController {
     private UserService userService;
 
 
+    @GetMapping("/profile")
+    public String profile(HttpSession session, Model model) {
+        try{
+            SessionUtils.isLoginUser(session);
+            return "user/profile";
+        }catch (IllegalStateException e) { // 로그인을 해야합니다.
+            model.addAttribute("errorMessage", e.getMessage());
+            return "user/login";
+        }
+    }
+
+
     @GetMapping("/loginForm")
     public String loginForm() {
         return "user/login";
@@ -42,7 +54,7 @@ public class UserController {
             userService.loginLogic(user, password); // 아이디가 없으면 에러 / 비밀번호가 틀리면 에러
             session.setAttribute(SessionUtils.USER_SESSION_KEY, user); //loginUser. << SESSION_KEY
             log.info("Login Success!");
-            return "redirect:/";
+            return "redirect:/index";
 
         }catch (IllegalStateException  | NotMatchPasswordException e) { // 존재하지 않는 아이디 or 비밀번호가 다른경우.
             model.addAttribute("errorMessage", e.getMessage());
@@ -58,7 +70,7 @@ public class UserController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.removeAttribute(SessionUtils.USER_SESSION_KEY);
-        return "redirect:/";
+        return "redirect:/index";
     }
 
 
@@ -82,6 +94,7 @@ public class UserController {
     @GetMapping("/list")
     public String list(Model model) {
         List<User> all = userRepository.findAll(); // 이럴경우 굳이 service를 활용해야 하는가에 대해 고민해봐도 괜찮다.
+
         model.addAttribute("users",all);
         return "user/list"; // templates
     }

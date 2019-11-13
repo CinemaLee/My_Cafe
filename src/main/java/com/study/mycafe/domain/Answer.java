@@ -1,19 +1,19 @@
 package com.study.mycafe.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import com.study.mycafe.exception.NotMatchIdException;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class Answer {
+@Getter
+@Setter
+@ToString
+public class Answer extends SuperEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,18 +21,13 @@ public class Answer {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_idx")
-    @ToString.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_idx")
-    @ToString.Exclude
     private Question question;
 
     private String contents;
-
-    private LocalDateTime createdAt;
-
 
     public static Answer createAnswer(User user, Question question, String contents) {
 
@@ -40,17 +35,30 @@ public class Answer {
         answer.setUser(user);
         answer.setQuestion(question);
         answer.setContents(contents);
-        answer.setCreatedAt(LocalDateTime.now());
+
         return answer;
 
     }
 
-
-    public String getFormattedCreatedAt() {
-        if(createdAt == null) {
-            return "";
+    public void isSameWriter(User loginUser) {
+        if(!this.user.equals(loginUser)){
+            throw new NotMatchIdException();
         }
-        return createdAt.format(DateTimeFormatter.ofPattern("yyyy.MM.dd-HH:mm:ss"));
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Answer answer = (Answer) o;
+        return Objects.equals(getId(), answer.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
 
 }

@@ -4,6 +4,7 @@ import com.study.mycafe.domain.Question;
 import com.study.mycafe.domain.User;
 import com.study.mycafe.exception.NotMatchIdException;
 import com.study.mycafe.repository.QuestionRepository;
+import com.study.mycafe.repository.UserRepository;
 import com.study.mycafe.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -24,12 +27,19 @@ public class QuestionController {
     @Autowired
     QuestionRepository questionRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     @GetMapping("/questionForm")
-    public String questionForm(HttpSession session) {
-        if(!SessionUtils.isLoginUser(session)){
-            return "redirect:/user/loginForm";
+    public String questionForm(HttpSession session, Model model) {
+        try {
+            SessionUtils.isLoginUser(session);
+            return "qna/qnaForm";
+        }catch (IllegalStateException e) { // 로그인해야합니다.
+            model.addAttribute("errorMessage",e.getMessage());
+            return "user/login";
         }
-        return "qna/qnaForm";
+
     }
 
 
@@ -40,8 +50,9 @@ public class QuestionController {
 
         questionRepository.save(Question.createQuestion(sessionUser,title,contents));
 
-        return "redirect:/";
+        return "redirect:/index";
     }
+
 
 
     @GetMapping("/{id}/questionShow")
@@ -97,7 +108,7 @@ public class QuestionController {
             Question question = questionRepository.getOne(id); //  질문을 가져온다. 질문이 없을 수는 없다.
             question.isSameUser(loginUser); // 질문한 사람과 로그인한 사람이 다르면 에러
             questionRepository.deleteById(id);
-            return "redirect:/";
+            return "redirect:/index";
 
         }catch (IllegalStateException e){ // 로그인해야합니다.
             model.addAttribute("errorMessage", e.getMessage());

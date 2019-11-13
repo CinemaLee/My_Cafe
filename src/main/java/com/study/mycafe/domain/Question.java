@@ -1,10 +1,9 @@
 package com.study.mycafe.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.study.mycafe.exception.NotMatchIdException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,10 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Question {
+@ToString
+public class Question extends SuperEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,18 +29,16 @@ public class Question {
     @Lob // 대용량 글자수 가능.
     private String contents;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Integer countOfAnswer=0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_idx")
-    @ToString.Exclude
     private User user;
 
 
     @OneToMany(mappedBy = "question")
-    @ToString.Exclude
-    @OrderBy("id ASC") // id기준 오름차순 정렬하겠다.
+    @OrderBy("id DESC") // id기준 내림차순 정렬하겠다. <=> ASC
+    @JsonIgnore
     private List<Answer> answers = new ArrayList<>();
 
 
@@ -49,25 +48,21 @@ public class Question {
         question.setUser(user);
         question.setTitle(title);
         question.setContents(contents);
-        question.setCreatedAt(LocalDateTime.now());
-
-
         return question;
 
     }
-
-
-    public String getFormattedCreatedAt() {
-        if(createdAt == null) {
-            return "";
-        }
-        return createdAt.format(DateTimeFormatter.ofPattern("yyyy.MM.dd-HH:mm:ss"));
-    }
-
 
     public void isSameUser(User loginUser) {
         if(!this.user.equals(loginUser)) {
             throw new NotMatchIdException();
         }
+    }
+
+    public void addAnswerCount() {
+        this.countOfAnswer += 1;
+    }
+
+    public void deleteAnswerCount(){
+        this.countOfAnswer -= 1;
     }
 }

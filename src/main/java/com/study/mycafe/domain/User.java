@@ -1,5 +1,6 @@
 package com.study.mycafe.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.study.mycafe.exception.NotMatchIdException;
 import com.study.mycafe.exception.NotMatchPasswordException;
 import com.study.mycafe.exception.PersonNotFoundException;
@@ -13,10 +14,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Getter
+@Getter // Json형식으로 리턴할때 get이 달려있는 놈들만 출력이 된다. 
 @Setter
 @ToString
-public class User {
+public class User extends SuperEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,17 +26,21 @@ public class User {
     @Column(nullable = false, unique = true) // null이 될 수 없다. 똑같을 수 없다.
     private String userId;
 
+    @JsonIgnore
     private String password;
+
     private String name;
     private String email;
 
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
+    @JsonIgnore
     private List<Question> questions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
+    @JsonIgnore
     private List<Answer> answers = new ArrayList<>();
 
 
@@ -48,6 +53,7 @@ public class User {
             throw new NotMatchPasswordException();
         }
     }
+
 
     public void matchId(Long newId) {
         if(newId == null) {
