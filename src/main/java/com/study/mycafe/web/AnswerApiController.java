@@ -8,6 +8,7 @@ import com.study.mycafe.exception.QuestionNotFoundException;
 import com.study.mycafe.repository.AnswerRepository;
 import com.study.mycafe.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ import javax.servlet.http.HttpSession;
  * api Controller로 만들어보자.
  */
 
-@RestController // 반환값을 자동으로 json형태로 변환해줌.
+@Controller // RestController : 반환값을 자동으로 json형태로 변환해줌.
 @RequestMapping("/api/questions/{questionId}/answers")
 public class AnswerApiController {
 
@@ -28,24 +29,26 @@ public class AnswerApiController {
     private QuestionRepository questionRepository;
 
     @PostMapping("")
-    public Header create(@PathVariable Long questionId, String contents, HttpSession session) {
+    public String create(@PathVariable Long questionId, String contents, HttpSession session,Model model) {
         try {
             SessionUtils.isLoginUser(session);
             User loginUser = SessionUtils.getUserFromSession(session);
             Question question = questionRepository.findById(questionId).orElseThrow(QuestionNotFoundException::new);
             Answer answer = Answer.createAnswer(loginUser, question, contents);
             question.addAnswerCount();
-            return Header.Ok(answerRepository.save(answer)); // save는 그 엔티티 자체를 반환한다. 원래 이러면 안되고 DTO를 만들어야해.
+            answerRepository.save(answer);
+            model.addAttribute("question",question);
+            return String.format("redirect:/questions/%d/questionShow",questionId); // save는 그 엔티티 자체를 반환한다. 원래 이러면 안되고 DTO를 만들어야해.
 
         }catch (IllegalStateException e){ // 로그인해야합니다.
-
-            return Header.Error("로그인 해야합니다.");
+            model.addAttribute("errorMessage",e.getMessage());
+            return "user/login";
         }
     }
 
 
-    @DeleteMapping("/{id}")
-    public Header delete(@PathVariable Long questionId, @PathVariable Long id, HttpSession session) {
+    @PostMapping("/{id}")
+    public String delete(@PathVariable Long questionId, @PathVariable Long id, HttpSession session, Model model) {
         try {
             SessionUtils.isLoginUser(session);
             User loginUser = SessionUtils.getUserFromSession(session);
@@ -55,13 +58,16 @@ public class AnswerApiController {
             question.deleteAnswerCount();
             answerRepository.deleteById(id);
 
-
-            return Header.Ok("삭제되었습니다.");
+            return String.format("redirect:/questions/%d/questionShow",questionId);
 
         }catch (IllegalStateException e){ // 로그인해야합니다.
-            return Header.Error("로그인 해야합니다.");
+            model.addAttribute("errorMessage",e.getMessage());
+            return "user/login";
         }catch (NotMatchIdException e) {
-            return Header.Error("해당 유저가 아닙니다.");
+            Question question = questionRepository.getOne(id); // 에러메시지를 리스트에 뿌리기 위해 다시 값을 가져옴
+            model.addAttribute("question",question);
+            model.addAttribute("errorMessage",e.getMessage());
+            return "qna/qnaShow";
         }
     }
 }

@@ -3,11 +3,8 @@ package com.study.mycafe.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.study.mycafe.exception.NotMatchIdException;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -4,7 +4,6 @@ import com.study.mycafe.exception.NotMatchIdException;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Entity
