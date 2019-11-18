@@ -81,8 +81,15 @@ public class UserController {
     }
 
 
+
+
     @PostMapping("/register")
-    public String register(User user) {
+    public String register(@RequestParam String userId, User user, Model model) {
+
+        if(!(userRepository.findByUserId(userId)==null)){
+            model.addAttribute("errorMessage", "이미 존재하는 아이디 입니다.");
+            return "user/registerForm";
+        }
 
         userRepository.save(user);
 
