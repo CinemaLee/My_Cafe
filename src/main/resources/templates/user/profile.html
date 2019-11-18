@@ -10,7 +10,13 @@
                     <div class="media">
                         {{#loginUser}}
                         <a class="thumbnail pull-left" href="#">
-                            <img class="media-object" src="/images/{{name}}.png">
+                            {{#imgCode}}
+                            <img class="media-object" src="{{this}}">
+                            {{/imgCode}}
+
+                            {{^imgCode}}
+                            <img class="media-object" src="/images/guest80.jpg">
+                            {{/imgCode}}
                         </a>
                         <div class="media-body">
                             <h4 class="media-heading">{{name}}</h4>

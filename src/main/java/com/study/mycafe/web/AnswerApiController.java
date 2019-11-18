@@ -37,7 +37,6 @@ public class AnswerApiController {
             Answer answer = Answer.createAnswer(loginUser, question, contents.replace("\r\n","<br>"));
             question.addAnswerCount();
             answerRepository.save(answer);
-            model.addAttribute("question", question);
             return String.format("redirect:/questions/%d/questionShow",questionId); // save는 그 엔티티 자체를 반환한다. 원래 이러면 안되고 DTO를 만들어야해.
 
         }catch (IllegalStateException e){ // 로그인해야합니다.

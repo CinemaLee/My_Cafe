@@ -16,14 +16,23 @@
               <article class="article">
                   <div class="article-header">
                       <div class="article-header-thumb">
-                          <img src="https://graph.facebook.com/v2.3/100000059371774/picture" class="article-author-thumb" alt="">
+                          {{#user.imgCode}}
+                          <img src="{{this}}" class="article-author-thumb" alt="">
+                          {{/user.imgCode}}
+
+                          {{^user.imgCode}}
+                          <img src="/images/guest50.png" class="article-author-thumb" alt="">
+                          {{/user.imgCode}}
                       </div>
                       <div class="article-header-text">
-                          <a href="#" class="article-author-name">{{user.userId}}</a>
-                          <a href="#" class="article-header-time" title="퍼머링크">
-                              {{formattedCreatedAt}}
-                              <i class="icon-link"></i>
-                          </a>
+<!--                          <a href="#" class="article-author-name">{{user.userId}}</a>-->
+                          <span style="color:blue">{{user.userId}}</span>
+                          <span class="article-header-time" style="color:black">{{formattedCreatedAt}}</span>
+
+<!--                          <a href="#" class="article-header-time" >-->
+<!--                              {{formattedCreatedAt}}-->
+<!--                              <i class="icon-link"></i>-->
+<!--                          </a>-->
                       </div>
                   </div>
                   <div class="article-doc">
@@ -58,13 +67,18 @@
                           <article class="article" id="answer-1405">
                               <div class="article-header">
                                   <div class="article-header-thumb">
-                                      <img src="https://graph.facebook.com/v2.3/1324855987/picture" class="article-author-thumb" alt="">
+                                      {{#user.imgCode}}
+                                      <img src="{{this}}" class="article-author-thumb" alt="">
+                                      {{/user.imgCode}}
+
+                                      {{^user.imgCode}}
+                                      <img src="/images/guest50.png" class="article-author-thumb" alt="">
+                                      {{/user.imgCode}}
                                   </div>
                                   <div class="article-header-text">
-                                      <a href="/users/1/자바지기" class="article-author-name">{{user.userId}}</a>
-                                      <a href="#answer-1434" class="article-header-time" title="퍼머링크">
-                                          {{formattedCreatedAt}}
-                                      </a>
+<!--                                      <a href="" class="article-author-name">{{user.userId}}</a>-->
+                                      <span style="color:blue">{{user.userId}}</span>
+                                      <span class="article-header-time" style="color:black">{{formattedCreatedAt}}</span>
                                   </div>
                               </div>
                               <div class="article-doc comment-doc">

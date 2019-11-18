@@ -1,8 +1,11 @@
 package com.study.mycafe.web;
 
+import com.study.mycafe.domain.Answer;
 import com.study.mycafe.domain.Question;
 import com.study.mycafe.domain.User;
 import com.study.mycafe.exception.NotMatchIdException;
+import com.study.mycafe.exception.PersonNotFoundException;
+import com.study.mycafe.repository.AnswerRepository;
 import com.study.mycafe.repository.QuestionRepository;
 import com.study.mycafe.repository.UserRepository;
 import com.study.mycafe.service.QuestionService;
@@ -26,6 +29,9 @@ public class QuestionController {
 
     @Autowired
     QuestionRepository questionRepository;
+
+    @Autowired
+    AnswerRepository answerRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -57,8 +63,11 @@ public class QuestionController {
 
     @GetMapping("/{id}/questionShow")
     public String show(@PathVariable Long id, Model model) {
-        Question question = questionRepository.findById(id).orElseGet(null);
+        Question question = questionRepository.findById(id).orElseGet(null); // 없을 수 없디.
+
         question.setContents(question.getContents().replace("\r\n","<br>"));
+
+
 
         model.addAttribute("question",question);
         return "qna/qnaShow";

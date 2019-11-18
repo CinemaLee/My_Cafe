@@ -32,6 +32,8 @@ public class User extends SuperEntity{
     private String name;
     private String email;
 
+    private String imgCode;
+
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
