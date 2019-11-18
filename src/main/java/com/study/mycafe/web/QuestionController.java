@@ -58,6 +58,8 @@ public class QuestionController {
     @GetMapping("/{id}/questionShow")
     public String show(@PathVariable Long id, Model model) {
         Question question = questionRepository.findById(id).orElseGet(null);
+        question.setContents(question.getContents().replace("\r\n","<br>"));
+
         model.addAttribute("question",question);
         return "qna/qnaShow";
     }
