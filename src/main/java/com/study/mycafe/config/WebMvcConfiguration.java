@@ -16,11 +16,17 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+<<<<<<< HEAD
 //        registry.addResourceHandler("/images/**")
 //                .addResourceLocations("file:///" + "C:/Users/owner/imagedata/");
 //                  .addResourceLocations("file:///" + "http://drive.google.com/uc?export=view&id=1Nzt9oYCtCtQCNSokG8bmutzb69PxjomU");
 
 
 
+=======
+        registry.addResourceHandler("/images/**")
+//                .addResourceLocations("file:///" + "C:/Users/owner/imagedata/");
+                  .addResourceLocations("file:///" + "https://drive.google.com/drive/folders/1Nzt9oYCtCtQCNSokG8bmutzb69PxjomU");
+>>>>>>> parent of 4bdc8f0... 썸네일테스트2
     }
 }
