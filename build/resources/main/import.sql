@@ -1,6 +1,6 @@
 
 
-insert into user(`id`, `user_Id`, `password`, `name`, `email` ,`img_code`, `created_at`) values (1,'lee','123','이강우','lee@na.com','http://drive.google.com/uc?export=view&id=1n6AFP9iwROmqXAa7V832yeJKrKBp4mNc',current_timestamp());
+insert into user(`id`, `user_Id`, `password`, `name`, `email` ,`img_code`, `created_at`) values (1,'lee','123','이강우','lee@na.com','https://graph.facebook.com/v5.0/1768228496643310/picture',current_timestamp());
 insert into user(`id`, `user_Id`, `password`, `name`, `email`,`img_code`, `created_at` ) values (2,'kim','123','김민수','kim@na.com','http://drive.google.com/uc?export=view&id=16WHxGxAQ6yhmr_TEZRc2lFDDW994G20a',current_timestamp());
 
 
